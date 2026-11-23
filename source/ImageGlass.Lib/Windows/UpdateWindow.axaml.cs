@@ -261,6 +261,11 @@ public partial class UpdateWindow : ModalWindow
             ShowReleaseCard(release);
             PART_BtnChangelog.IsVisible = !string.IsNullOrWhiteSpace(release.ChangelogUrl);
         }
+        else if (result.Status == UpdateCheckStatus.Disabled)
+        {
+            Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_Disabled];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+        }
         else if (result.Status == UpdateCheckStatus.CheckFailed)
         {
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_Failed];

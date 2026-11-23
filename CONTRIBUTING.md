@@ -77,6 +77,10 @@ samples for this stable-version port. The bundled ImageMagick is affected by
 The Intel app has its own bundle identifier and uses the regular ImageGlass per-user
 configuration and single-instance lock.
 
+The Intel target currently builds with `IgUpdateChannel=disabled`. Both scheduled and
+manual checks stay offline. When an Intel update source is ready, connect its metadata
+endpoint and verify that it publishes a `mac-x64-dmg` artifact before enabling the channel.
+
 Developer ID packaging requires an explicit `--sign developer-id`, your own
 `SIGN_IDENTITY`, and a `NOTARY_PROFILE` for the disk-image step.
 

@@ -3266,6 +3266,17 @@ public partial class AppAPIProvider
     /// </summary>
     public static async Task IG_CheckForUpdateAsync(bool showUI = true)
     {
+        if (!UpdateProvider.IsEnabled)
+        {
+            if (showUI)
+            {
+                var window = new UpdateWindow();
+                window.SetResultState(Update.UpdateCheckResult.Disabled());
+                _ = await window.ShowAsync(App.MainWindow);
+            }
+            return;
+        }
+
         if (showUI) _hasManualUpdateCheck.SetTrue();
 
         // silent mode: skip if disabled or checked recently

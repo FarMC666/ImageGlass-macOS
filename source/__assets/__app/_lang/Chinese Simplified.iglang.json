@@ -317,6 +317,7 @@
     "Menu_MnuCheckForUpdate_NewVersion": "发现新版本！",
     "Menu_MnuCheckForUpdate_NoUpdate": "您正在使用最新版本！",
     "Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable": "上游已发布新版本，暂未提供 Intel Mac 安装包。",
+    "Menu_MnuCheckForUpdate_Disabled": "此版本已暂时关闭更新。",
     "Menu_MnuCheckForUpdate_Checking": "正在检查更新…",
     "Menu_MnuCheckForUpdate_Failed": "检查更新失败！",
     "Menu_MnuCheckForUpdate_SkipVersion": "跳过此版本",

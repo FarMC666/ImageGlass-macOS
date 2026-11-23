@@ -72,10 +72,19 @@ public partial class GeneralSettingsView : SettingsPageView
         BindToggle(PART_MultiInstances, ConfigId.EnableMultiInstances,
             LangId.Settings_EnableMultiInstances, LangId.Settings_Startup);
 
-        // App update — AutoUpdate is stored as a date string; "0" means disabled.
-        BindAutoUpdateToggle(PART_AutoUpdate, ConfigId.AutoUpdate,
-            LangId.Settings_AutoUpdate, LangId.Settings_AppUpdate);
-        BindLink(PART_SeeWhatIsSent, LangId.Settings_SeeWhatIsSent, ShowUsageStatsPreview);
+        if (UpdateProvider.IsEnabled)
+        {
+            // AutoUpdate is stored as a date string; "0" means disabled.
+            BindAutoUpdateToggle(PART_AutoUpdate, ConfigId.AutoUpdate,
+                LangId.Settings_AutoUpdate, LangId.Settings_AppUpdate);
+            BindLink(PART_SeeWhatIsSent, LangId.Settings_SeeWhatIsSent, ShowUsageStatsPreview);
+        }
+        else
+        {
+            PART_AutoUpdate.IsVisible = false;
+            PART_SeeWhatIsSent.IsVisible = false;
+            PART_AutoUpdateDescription.LangKey = LangId.Menu_MnuCheckForUpdate_Disabled;
+        }
 
         SetLocalizedText(PART_CheckForUpdate, LangId._CheckForUpdate);
         PART_CheckForUpdate.Click += (_, _) => CheckForUpdate();
@@ -103,7 +112,7 @@ public partial class GeneralSettingsView : SettingsPageView
 
 
     /// <summary>
-    /// Runs a manual update check: opens the update window in its checking state.
+    /// Opens the manual update window.
     /// </summary>
     private static async void CheckForUpdate()
     {

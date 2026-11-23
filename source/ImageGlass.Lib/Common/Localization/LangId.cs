@@ -871,5 +871,6 @@ public enum LangId
     Menu_MacHideApp,
     Menu_MacHideOthers,
     Menu_MacShowAll,
+    Menu_MnuCheckForUpdate_Disabled,
 }
 

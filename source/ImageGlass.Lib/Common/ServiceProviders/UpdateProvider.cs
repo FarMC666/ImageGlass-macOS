@@ -34,6 +34,9 @@ public sealed class UpdateProvider
     private InterlockedBool _isChecking;
 
 
+    internal static bool IsEnabled => !string.Equals(Core.BuildInfo.UpdateChannel, "disabled", StringComparison.OrdinalIgnoreCase);
+
+
     /// <summary>
     /// Gets whether enough time has elapsed since the last check
     /// to warrant a new silent check.
@@ -46,6 +49,8 @@ public sealed class UpdateProvider
     {
         get
         {
+            if (!IsEnabled) return false;
+
             var lastCheckTime = ParseLastCheckTime();
             var threshold = UpdateConstants.BackgroundCheckInterval
                 + TimeSpan.FromMinutes(Random.Shared.Next(0, UpdateConstants.CheckJitterMinutes));
@@ -65,6 +70,8 @@ public sealed class UpdateProvider
     /// </param>
     public async Task<UpdateCheckResult> CheckForUpdateAsync(CancellationToken ct, bool isScheduled = false)
     {
+        if (!IsEnabled) return UpdateCheckResult.Disabled();
+
         if (_isChecking) return UpdateCheckResult.Failed("Check already in progress.");
 
         _isChecking.SetTrue();

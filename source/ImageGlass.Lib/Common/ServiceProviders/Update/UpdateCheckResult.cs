@@ -37,6 +37,9 @@ public enum UpdateCheckStatus
 
     /// <summary>A newer release exists without an Intel Mac installer.</summary>
     IntelMacInstallerUnavailable,
+
+    /// <summary>The build has no active update channel.</summary>
+    Disabled,
 }
 
 
@@ -51,6 +54,11 @@ public sealed class UpdateCheckResult
     public string? ErrorMessage { get; init; }
     public Exception? Exception { get; init; }
 
+
+    internal static UpdateCheckResult Disabled() => new()
+    {
+        Status = UpdateCheckStatus.Disabled,
+    };
 
     public static UpdateCheckResult NoUpdate(UpdateReleaseInfo? release = null) => new()
     {

@@ -76,6 +76,7 @@
                 <ui:PhTextBlock LangKey="Settings_AutoUpdate" TextWrapping="Wrap" />
             </CheckBox>
             <ui:PhTextBlock
+                x:Name="PART_AutoUpdateDescription"
                 Margin="0,8,0,0"
                 LangKey="Settings_AutoUpdate_Description"
                 Opacity="0.75"
