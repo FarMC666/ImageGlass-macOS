@@ -21,6 +21,7 @@ using ImageGlass.Common.Types;
 using System;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -140,7 +141,26 @@ public sealed class UpdateProvider
             return UpdateCheckResult.NoUpdate();
         }
 
+        if (OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.X64)
+        {
+            return UpdateCheckResult.ForIntelMac(release, GetIntelMacDownloadUrl(release));
+        }
+
         return UpdateCheckResult.Available(release);
+    }
+
+
+    internal static string? GetIntelMacDownloadUrl(UpdateReleaseInfo release)
+    {
+        if (release.Artifacts?.TryGetValue("mac-x64-dmg", out var artifact) != true
+            || !Uri.TryCreate(artifact?.Url, UriKind.Absolute, out var url)
+            || url.Scheme != Uri.UriSchemeHttps
+            || !url.AbsolutePath.EndsWith("_mac-x64.dmg", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return url.AbsoluteUri;
     }
 
 

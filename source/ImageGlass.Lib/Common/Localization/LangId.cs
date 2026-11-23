@@ -866,6 +866,6 @@ public enum LangId
     QuickSetup_ConfirmCloseProcess_Description,
     #endregion // Quick setup
 
-
+    Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable,
 }
 

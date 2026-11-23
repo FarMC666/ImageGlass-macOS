@@ -80,6 +80,7 @@ Primarily a photo viewer, ImageGlass offers a wide array of features geared towa
 **Version 10**
 - Windows 10/11 x64 or arm64, version 1809 (build 17763) or later
 - macOS 14+, Apple Silicon arm64
+- macOS 15+, Intel x86_64 for [local builds](CONTRIBUTING.md#intel-macos)
 - Linux Desktop X11 x64
 
 **Version 9**

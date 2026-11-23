@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <Platforms>x64;ARM64</Platforms>
+    <IsRidAgnostic>false</IsRidAgnostic>
 
     <LangVersion>Preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,6 +15,13 @@
     <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
+  <PropertyGroup>
+    <MagickArchitecture>$(Platform)</MagickArchitecture>
+    <MagickArchitecture Condition="$(RuntimeIdentifier.EndsWith('-x64'))">x64</MagickArchitecture>
+    <MagickArchitecture Condition="$(RuntimeIdentifier.EndsWith('-arm64'))">ARM64</MagickArchitecture>
+    <MagickMacTarget Condition="$(RuntimeIdentifier.StartsWith('osx-')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('osx')))">true</MagickMacTarget>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Assets\Delete.png" />
     <None Remove="Assets\Error.png" />
@@ -54,9 +62,10 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="D2Phap.FileWatcherEx" />
     <PackageReference Include="ImageGlass.SDK" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-x64" Condition="'$(Platform)' == 'x64'" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-arm64" Condition="'$(Platform)' == 'ARM64' And !$([MSBuild]::IsOSPlatform('osx'))" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-arm64" Condition="'$(Platform)' == 'ARM64' And $([MSBuild]::IsOSPlatform('osx'))" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-x64" Condition="'$(MagickArchitecture)' == 'x64' And '$(RuntimeIdentifier)' != 'osx-x64'" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Condition="'$(RuntimeIdentifier)' == 'osx-x64'" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-arm64" Condition="'$(MagickArchitecture)' == 'ARM64' And '$(MagickMacTarget)' != 'true'" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-arm64" Condition="'$(MagickArchitecture)' == 'ARM64' And '$(MagickMacTarget)' == 'true'" />
     <PackageReference Include="NativeMemoryArray" />
     <PackageReference Include="NetCoreAudio" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" />

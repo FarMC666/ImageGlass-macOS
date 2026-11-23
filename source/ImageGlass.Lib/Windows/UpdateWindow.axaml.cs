@@ -88,11 +88,13 @@ public partial class UpdateWindow : ModalWindow
             return;
         }
 
-        // "Update" button opens the update URL, falling back to the changelog URL
+        if (_result?.Status == UpdateCheckStatus.IntelMacInstallerUnavailable) return;
+
+        // Prefer the architecture-specific download when the check selected one.
         var release = _result?.Release;
-        var url = !string.IsNullOrWhiteSpace(release?.UpdateUrl)
+        var url = _result?.DownloadUrl ?? (!string.IsNullOrWhiteSpace(release?.UpdateUrl)
             ? release.UpdateUrl
-            : release?.ChangelogUrl;
+            : release?.ChangelogUrl);
         if (!string.IsNullOrWhiteSpace(url))
         {
             _ = BHelper.OpenUrlAsync(this, url, "from_update_dialog");
@@ -251,6 +253,13 @@ public partial class UpdateWindow : ModalWindow
             IsButton1Visible = true;
             DefaultButton = DialogButton.Button1;
             DefaultFocus = DialogFocus.Button1;
+        }
+        else if (result.Status == UpdateCheckStatus.IntelMacInstallerUnavailable && release is not null)
+        {
+            Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+            ShowReleaseCard(release);
+            PART_BtnChangelog.IsVisible = !string.IsNullOrWhiteSpace(release.ChangelogUrl);
         }
         else if (result.Status == UpdateCheckStatus.CheckFailed)
         {

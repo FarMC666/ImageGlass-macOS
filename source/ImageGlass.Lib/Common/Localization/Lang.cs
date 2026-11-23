@@ -862,6 +862,7 @@ public class Lang
         new(LangId.Menu_MnuReportIssue, "Report an issue…"), //v3.0
 
         new(LangId.Menu_MnuCheckForUpdate_NewVersion, "A new update is available!"), //v5.0
+        new(LangId.Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable, "The latest release has no Intel Mac installer."),
         new(LangId.Menu_MnuCheckForUpdate_NoUpdate, "You are using the latest version!"),
         new(LangId.Menu_MnuCheckForUpdate_Checking, "Checking for update…"),
         new(LangId.Menu_MnuCheckForUpdate_Failed, "Could not check for update!"),

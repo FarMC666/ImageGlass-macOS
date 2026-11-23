@@ -54,6 +54,14 @@
       "group": "build"
     },
     {
+      "label": "build-mac-x64",
+      "type": "shell",
+      "command": "dotnet build ImageGlass.Mac -c Debug -r osx-x64 -p:Platform=x64 -p:PublishAot=false -p:PublishTrimmed=false -p:PublishSingleFile=false -p:PublishReadyToRun=false -o __artifacts/debug/osx-x64 && ditto __assets/__app __artifacts/debug/osx-x64",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
       "label": "build-mac-arm64",
       "type": "process",
       "command": "dotnet",
@@ -95,6 +103,14 @@
       "group": "build"
     },
     {
+      "label": "publish-mac-x64",
+      "type": "shell",
+      "command": "dotnet publish ImageGlass.Mac -c Release -r osx-x64 -p:Platform=x64 --self-contained true -p:PublishAot=true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:PublishReadyToRun=false -o __artifacts/publish/osx-x64-aot && ditto __assets/__app __artifacts/publish/osx-x64-aot",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
       "label": "publish-mac-arm64",
       "type": "shell",
       "command": "dotnet publish '${workspaceFolder}/ImageGlass.Mac/ImageGlass.Mac.csproj' -c Release -r osx-arm64 -p:Platform=ARM64 -p:PublishAot=true -p:PublishSingleFile=true -p:PublishTrimmed=true -o '${workspaceFolder}/__artifacts/publish/osx-arm64' --self-contained true && cp -r '${workspaceFolder}/__assets/__app/.' '${workspaceFolder}/__artifacts/publish/osx-arm64/'",
@@ -104,6 +120,33 @@
 
 
     // Pack tasks
+    {
+      "label": "pack-mac-x64-app",
+      "type": "process",
+      "command": "/bin/bash",
+      "args": [
+        "${workspaceFolder}/__assets/mac/script-pack-mac-app.sh",
+        "--rid", "osx-x64",
+        "--publish-dir", "${workspaceFolder}/__artifacts/publish/osx-x64-aot",
+        "--sign", "adhoc"
+      ],
+      "problemMatcher": [],
+      "dependsOn": ["publish-mac-x64"],
+      "group": "build"
+    },
+    {
+      "label": "pack-mac-x64-dmg",
+      "type": "process",
+      "command": "/bin/bash",
+      "args": [
+        "${workspaceFolder}/__assets/mac/script-pack-mac-dmg.sh",
+        "--rid", "osx-x64",
+        "--sign", "adhoc"
+      ],
+      "problemMatcher": [],
+      "dependsOn": ["pack-mac-x64-app"],
+      "group": "build"
+    },
     {
       "label": "pack-mac-arm64-app",
       "type": "process",

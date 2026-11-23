@@ -43,7 +43,7 @@ public static partial class MacEventApi
         var currentEvent = objc_msgSend(app, _currentEventSel.Value);
         if (currentEvent == 0) return false;
 
-        return objc_msgSend_bool(currentEvent, _hasPreciseSel.Value);
+        return objc_msgSend_bool(currentEvent, _hasPreciseSel.Value) != 0;
     }
 
 
@@ -53,8 +53,7 @@ public static partial class MacEventApi
     private static partial nint objc_msgSend(nint receiver, nint selector);
 
     [LibraryImport(LIB_OBJC, EntryPoint = "objc_msgSend")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool objc_msgSend_bool(nint receiver, nint selector);
+    private static partial byte objc_msgSend_bool(nint receiver, nint selector);
 
     [LibraryImport(LIB_OBJC, StringMarshalling = StringMarshalling.Utf8)]
     private static partial nint sel_registerName(string name);

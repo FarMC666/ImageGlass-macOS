@@ -53,7 +53,9 @@ public partial class BHelper
     /// </summary>
     public static string ConfigPath => ConfigMode.IsPortable
         ? BaseDir()
-        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName);
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData,
+            OperatingSystem.IsMacOS() ? Environment.SpecialFolderOption.DoNotVerify : Environment.SpecialFolderOption.None),
+            AppName);
 
 
 

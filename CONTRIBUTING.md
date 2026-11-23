@@ -51,6 +51,34 @@ Use `ImageGlass.Mac` or `ImageGlass.Linux` instead of `ImageGlass.Win32` on thos
 
 **Version 9** (in [v9/](v9/)): Visual Studio 2026 on Windows 11, plus VS Code for `WebUI`.
 
+### Intel macOS
+
+Build on macOS 15 or later with the Intel .NET 10 SDK and Xcode Command Line Tools. From `source/`, run:
+
+```sh
+publish_dir="$PWD/__artifacts/publish/osx-x64-aot"
+dotnet publish ImageGlass.Mac -c Release -r osx-x64 -p:Platform=x64 \
+  --self-contained true -p:PublishAot=true -p:PublishTrimmed=true \
+  -p:PublishSingleFile=true -p:PublishReadyToRun=false -o "$publish_dir"
+ditto __assets/__app "$publish_dir"
+bash __assets/mac/script-pack-mac-app.sh --rid osx-x64 --publish-dir "$publish_dir" --sign adhoc
+bash __assets/mac/script-pack-mac-dmg.sh --rid osx-x64 --sign adhoc
+```
+
+The VS Code `pack-mac-x64-dmg` task runs the same sequence. The app is under
+`__artifacts/bundle/osx-x64/` and the disk image is under `__artifacts/bundle/`.
+Both are for local testing and the app bundles its runtime. To test the CoreCLR build,
+publish to a separate directory with the same RID and self-contained setting and set all
+four `Publish*` options above to `false`. Pass that directory to the app packer.
+
+The Intel build uses the Q16-HDRI Magick.NET package without OpenMP. Use trusted image
+samples for this stable-version port. The bundled ImageMagick is affected by
+[an upstream TIFF security advisory](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-gr4q-6v79-qj3g).
+The Intel app has its own bundle identifier and uses the regular ImageGlass per-user
+configuration and single-instance lock.
+
+Developer ID packaging requires an explicit `--sign developer-id`, your own
+`SIGN_IDENTITY`, and a `NOTARY_PROFILE` for the disk-image step.
 
 ## Submitting code
 

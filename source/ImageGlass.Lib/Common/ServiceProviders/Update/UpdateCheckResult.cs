@@ -34,6 +34,9 @@ public enum UpdateCheckStatus
 
     /// <summary>The check failed (network, parse, or other error).</summary>
     CheckFailed,
+
+    /// <summary>A newer release exists without an Intel Mac installer.</summary>
+    IntelMacInstallerUnavailable,
 }
 
 
@@ -44,6 +47,7 @@ public sealed class UpdateCheckResult
 {
     public UpdateCheckStatus Status { get; init; }
     public UpdateReleaseInfo? Release { get; init; }
+    public string? DownloadUrl { get; init; }
     public string? ErrorMessage { get; init; }
     public Exception? Exception { get; init; }
 
@@ -58,6 +62,15 @@ public sealed class UpdateCheckResult
     {
         Status = UpdateCheckStatus.UpdateAvailable,
         Release = release,
+    };
+
+    internal static UpdateCheckResult ForIntelMac(UpdateReleaseInfo release, string? downloadUrl) => new()
+    {
+        Status = downloadUrl is null
+            ? UpdateCheckStatus.IntelMacInstallerUnavailable
+            : UpdateCheckStatus.UpdateAvailable,
+        Release = release,
+        DownloadUrl = downloadUrl,
     };
 
     public static UpdateCheckResult Failed(string message, Exception? ex = null) => new()

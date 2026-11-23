@@ -16,6 +16,17 @@
       "console": "internalConsole"
     },
     {
+      "name": "IG Mac X64",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-mac-x64",
+      "program": "${workspaceFolder}/__artifacts/debug/osx-x64/ImageGlass.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
       "name": "IG Mac ARM64",
       "type": "coreclr",
       "request": "launch",
