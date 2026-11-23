@@ -43,6 +43,7 @@ public partial class ToolbarControl
 
     // maps each native menu item back to its source PhMenuItem so state can be re-synced on open
     private readonly List<(NativeMenuItem Native, PhMenuItem Source)> _nativeMenuPairs = [];
+    private NativeMenu? _nativeWindowMenu;
 
 
     /// <summary>
@@ -51,16 +52,24 @@ public partial class ToolbarControl
     /// <para>
     /// The native menu is only a <i>view</i> of the existing menu: every leaf routes its click back
     /// to the source <see cref="PhMenuItem"/> so all command logic and external-tool handlers are
-    /// reused without duplication. The tree is built once; item state (checked/enabled/text) is
-    /// re-synced in place when a submenu opens — never restructured — because AppKit's Help-menu
-    /// search indexer opens every submenu and mutating the collection mid-iteration crashes.
+    /// reused without duplication. Only item state is re-synced during menu opening because
+    /// AppKit's Help-menu search indexer can be iterating the native items at that point.
     /// </para>
     /// </summary>
     public NativeMenu BuildNativeWindowMenu()
     {
-        PrepareSourceMenu();
-
         var root = new NativeMenu();
+        _nativeWindowMenu = root;
+        PopulateNativeWindowMenu(root);
+        return root;
+    }
+
+
+    private void PopulateNativeWindowMenu(NativeMenu root)
+    {
+        PrepareSourceMenu();
+        LocalizeMenuText(PART_MainMenu.Items);
+        root.Items.Clear();
 
         foreach (var src in PART_MainMenu.Items)
         {
@@ -90,8 +99,6 @@ public partial class ToolbarControl
             _nativeMenuPairs.Add((topItem, item));
             root.Add(topItem);
         }
-
-        return root;
     }
 
 

@@ -589,10 +589,17 @@ public partial class ToolbarControl : PhControl
 
         if (DataContext is ToolbarControlModel model) model.RefreshLanguage();
 
-        LocalizeMenuText(PART_MainMenu.Items);
-
-        // push the new text onto the macOS menu bar (no-op on other platforms)
-        SyncNativeStates();
+        if (_nativeWindowMenu is { } menu)
+        {
+            // Avalonia captures AppKit submenu titles at export. Keep the exported root and
+            // replace its items so the titles in the menu bar follow the new language.
+            PopulateNativeWindowMenu(menu);
+        }
+        else
+        {
+            LocalizeMenuText(PART_MainMenu.Items);
+            SyncNativeStates();
+        }
     }
 
 

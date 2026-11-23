@@ -867,5 +867,9 @@ public enum LangId
     #endregion // Quick setup
 
     Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable,
+    Menu_MacServices,
+    Menu_MacHideApp,
+    Menu_MacHideOthers,
+    Menu_MacShowAll,
 }
 

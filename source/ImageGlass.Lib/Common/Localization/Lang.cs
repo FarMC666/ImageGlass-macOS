@@ -827,6 +827,10 @@ public class Lang
         #region Main Menu > Help
         new(LangId.Menu_MnuHelp, "Help"), //v7.0
         new(LangId.Menu_MnuAbout, "About"), //v3.0
+        new(LangId.Menu_MacServices, "Services"),
+        new(LangId.Menu_MacHideApp, "Hide {0}"),
+        new(LangId.Menu_MacHideOthers, "Hide Others"),
+        new(LangId.Menu_MacShowAll, "Show All"),
 
         new(LangId.Menu_MnuUpgradeLicense, "Upgrade to Pro"), // v10.0
         new(LangId.Menu_MnuUpgradeLicense_Description, "Get the most out of ImageGlass. Pro unlocks advanced tools, smoother workflows, and priority support."), // v10.0

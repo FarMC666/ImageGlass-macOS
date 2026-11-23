@@ -242,8 +242,7 @@ public partial class App : Application
 
 
     /// <summary>
-    /// Localizes the macOS application (⌘) menu items declared in App.axaml, matching each item to
-    /// its <see cref="LangId"/> via the item's CommandParameter, and assigns the Settings shortcut.
+    /// Localizes the macOS application (⌘) menu, including the standard items added by Avalonia.
     /// </summary>
     private void LocalizeAppMenu()
     {
@@ -251,9 +250,22 @@ public partial class App : Application
 
         foreach (var item in menu.Items.OfType<NativeMenuItem>())
         {
-            if (item.CommandParameter is not string tag || !Enum.TryParse<LangId>(tag, out var langId)) continue;
+            LangId? key = item.CommandParameter switch
+            {
+                LangId standardKey => standardKey,
+                string tag when Enum.TryParse<LangId>(tag, out var declaredKey) => declaredKey,
+                null => GetStandardAppMenuKey(item.Header),
+                _ => null,
+            };
+            if (key is not LangId langId) continue;
 
-            var text = Core.Lang[langId];
+            // Avalonia creates these items with English titles and no tag. Remember their keys
+            // before replacing the titles so later language changes can reuse the native items.
+            item.CommandParameter ??= langId;
+
+            var text = langId == LangId.Menu_MacHideApp
+                ? Core.Lang[langId, Name ?? BHelper.AppName]
+                : Core.Lang[langId];
             if (!string.IsNullOrWhiteSpace(text)) item.Header = text;
 
             if (langId == LangId.Menu_MnuSettings)
@@ -266,6 +278,17 @@ public partial class App : Application
             else if (langId == LangId.Menu_MnuManageLicense) item.IsVisible = Core.IsProEnabled;
         }
     }
+
+
+    private LangId? GetStandardAppMenuKey(string? header) => header switch
+    {
+        "Services" => LangId.Menu_MacServices,
+        "Hide Others" => LangId.Menu_MacHideOthers,
+        "Show All" => LangId.Menu_MacShowAll,
+        "Quit" => LangId._Quit,
+        _ when header == $"Hide {Name ?? "Application"}" => LangId.Menu_MacHideApp,
+        _ => null,
+    };
 
 
     private void PlatformSettings_ColorValuesChanged(object? sender, PlatformColorValues e)
