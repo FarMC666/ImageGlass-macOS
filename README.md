@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Unofficial community port for Intel Macs.** This port is maintained by FarMC666 and targets macOS 15 or later on Intel (x86_64). ImageGlass was created by Duong Dieu Phap. [Upstream ImageGlass](https://github.com/d2phap/ImageGlass)
+
 <div align="center">
 
 # 🖼️ ImageGlass
@@ -32,21 +35,15 @@ ImageGlass is a fast, modern, open-source image viewer built for Windows, macOS,
 
 <div align="center">
 
-<a href="https://imageglass.org/pricing">
-  <img width="225" height="37" alt="Get ImageGlass" src="https://github.com/user-attachments/assets/a44993c4-8fbb-4209-8341-be6996059b5a" />
-</a>
+[**Intel Mac releases**](https://github.com/FarMC666/ImageGlass-macOS/releases) &nbsp;•&nbsp; [**Official ImageGlass downloads**](https://imageglass.org)
 
 </div>
 
 <br/>
 
 
-> [!Caution]
-> ### Security Alert: Fake Repositories and AI Threat Mitigation
-> Automated malicious campaigns are actively deploying AI tools to impersonate trusted software. They stand up fake GitHub profiles and Gists designed to trick users into downloading compromised packages.
-> - **Only use official channels**: Always download ImageGlass directly from the ([official website](https://imageglass.org)). Never download binaries from third-party mirrors, unverified GitHub forks, or standalone GitHub Gists.
-> - **Verify the repo source:** The only authentic spaces for this project on GitHub are the official [d2phap/ImageGlass](https://github.com/d2phap/ImageGlass) repository and the [ImageGlass Organization](https://github.com/ImageGlass). Any other profile or fork promising 'portable patches', 'extended releases', or alternative mirrors is completely unauthorized and highly likely to contain malware.
-> - **Check the URL**: Double-check your browser address bar to ensure you are not visiting a typosquatted domain.
+> [!NOTE]
+> Get the Intel Mac community build from this repository's Releases page and check the DMG's SHA-256 shown with the asset. For official builds, use the ImageGlass website. Verify the address before downloading from any source.
 
 <br/>
 
@@ -80,7 +77,7 @@ Primarily a photo viewer, ImageGlass offers a wide array of features geared towa
 **Version 10**
 - Windows 10/11 x64 or arm64, version 1809 (build 17763) or later
 - macOS 14+, Apple Silicon arm64
-- macOS 15+, Intel x86_64 for [local builds](CONTRIBUTING.md#intel-macos)
+- macOS 15+, Intel x86_64 for this community port. [Build instructions](CONTRIBUTING.md#intel-macos)
 - Linux Desktop X11 x64
 
 **Version 9**
@@ -91,7 +88,7 @@ Primarily a photo viewer, ImageGlass offers a wide array of features geared towa
 
 
 ## Development
-The `develop` branch contains the latest commits, while the `prod` branch holds the final stable release.
+The Intel port is maintained on `macos-x64`. Upstream development is on `develop`, and upstream stable releases are on `prod`.
 
 **Version 10**: Located in `source` folder
 - Visual Studio 2026 for Windows build
@@ -111,9 +108,9 @@ The `develop` branch contains the latest commits, while the `prod` branch holds 
 <br/>
 
 
-## This project needs your help!
+## Support upstream ImageGlass
 
-If you find ImageGlass useful and would like to support its ongoing development, please consider making a donation or purchase Pro edition. Your support — whether financial or simply sharing ImageGlass with others — means the world to me. Every bit helps keep the project alive for everyone.
+You can support the original ImageGlass project by donating or purchasing ImageGlass Pro from its official website.
 
 #### 👉 Explore the ways to support at [imageglass.org/donate](https://imageglass.org/donate).
 
