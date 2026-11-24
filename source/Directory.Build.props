@@ -9,4 +9,8 @@
     <IgBundleShortVersion>10.0.6</IgBundleShortVersion>
     <IgBundleBuild>906</IgBundleBuild>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(MSBuildThisFileDirectory)__assets/mac/codec/feed</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 </Project>

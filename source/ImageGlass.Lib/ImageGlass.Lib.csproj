@@ -22,6 +22,10 @@
     <MagickMacTarget Condition="$(RuntimeIdentifier.StartsWith('osx-')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('osx')))">true</MagickMacTarget>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+    <DefineConstants>$(DefineConstants);IMAGEGLASS_MAGICK_15</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Assets\Delete.png" />
     <None Remove="Assets\Error.png" />
@@ -63,7 +67,6 @@
     <PackageReference Include="D2Phap.FileWatcherEx" />
     <PackageReference Include="ImageGlass.SDK" />
     <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-x64" Condition="'$(MagickArchitecture)' == 'x64' And '$(RuntimeIdentifier)' != 'osx-x64'" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Condition="'$(RuntimeIdentifier)' == 'osx-x64'" />
     <PackageReference Include="Magick.NET-Q16-HDRI-OpenMP-arm64" Condition="'$(MagickArchitecture)' == 'ARM64' And '$(MagickMacTarget)' != 'true'" />
     <PackageReference Include="Magick.NET-Q16-HDRI-arm64" Condition="'$(MagickArchitecture)' == 'ARM64' And '$(MagickMacTarget)' == 'true'" />
     <PackageReference Include="NativeMemoryArray" />
@@ -89,5 +92,25 @@
       <DependentUpon>UpdateWindow.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+    <PackageReference Include="Magick.NET-Q16-HDRI-x64" GeneratePathProperty="true" />
+    <PackageReference Include="Magick.NET.Core" GeneratePathProperty="true" />
+    <PackageReference Include="FarMC666.ImageGlass.Magick.Native.osx-x64" GeneratePathProperty="true" />
+    <None Include="$(PkgFarMC666_ImageGlass_Magick_Native_osx-x64)/NOTICE.txt"
+          Link="_credits/Magick.Native-Intel.txt" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(PkgFarMC666_ImageGlass_Magick_Native_osx-x64)/sources.tsv"
+          Link="_credits/Magick.Native-Intel-sources.tsv" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="VerifyIntelMagickPackages" BeforeTargets="CoreCompile"
+          Condition="'$(RuntimeIdentifier)' == 'osx-x64' And '$(DesignTimeBuild)' != 'true'">
+    <VerifyFileHash File="$(PkgMagick_NET-Q16-HDRI-x64)/magick.net-q16-hdri-x64.15.1.0.nupkg"
+                    Hash="b1ec2b0afbd4322fc716be746a480b6332d88f0ab692f9b3e35ee25d3e3f78cf" Algorithm="SHA256" />
+    <VerifyFileHash File="$(PkgMagick_NET_Core)/magick.net.core.15.1.0.nupkg"
+                    Hash="461232bfc8188ee3c244c7a73119a8c8d4ada46f109d7ff97952f29729bdd438" Algorithm="SHA256" />
+    <VerifyFileHash File="$(PkgFarMC666_ImageGlass_Magick_Native_osx-x64)/farmc666.imageglass.magick.native.osx-x64.15.1.0-intel.1.nupkg"
+                    Hash="2603e6f6a97cdb510ffe3a260020d49f0fdf996d0761cf06b800733b9c387bc9" Algorithm="SHA256" />
+  </Target>
 
 </Project>

@@ -71,9 +71,10 @@ Both are for local testing and the app bundles its runtime. To test the CoreCLR 
 publish to a separate directory with the same RID and self-contained setting and set all
 four `Publish*` options above to `false`. Pass that directory to the app packer.
 
-The Intel build uses the Q16-HDRI Magick.NET package without OpenMP. Use trusted image
-samples for this stable-version port. The bundled ImageMagick is affected by
-[an upstream TIFF security advisory](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-gr4q-6v79-qj3g).
+The Intel build uses Magick.NET 15.1.0 and a locally packaged Q16-HDRI Magick.Native
+without OpenMP. It embeds ImageMagick 7.1.2-36, which includes the fix for
+[the upstream TIFF advisory](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-gr4q-6v79-qj3g).
+See the [pinned Intel native build and verification instructions](source/__assets/mac/codec/README.md).
 The Intel app has its own bundle identifier and uses the regular ImageGlass per-user
 configuration and single-instance lock.
 

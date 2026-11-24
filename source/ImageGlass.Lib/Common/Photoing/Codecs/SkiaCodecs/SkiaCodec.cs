@@ -34,6 +34,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if IMAGEGLASS_MAGICK_15
+using OrientationType = ImageMagick.Orientation;
+#endif
+
 namespace ImageGlass.Common.Photoing;
 
 public static partial class SkiaCodec

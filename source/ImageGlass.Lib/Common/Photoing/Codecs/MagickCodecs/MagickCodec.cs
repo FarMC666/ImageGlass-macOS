@@ -19,6 +19,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using Cysharp.Collections;
 using ImageMagick;
 using ImageMagick.Formats;
+#if IMAGEGLASS_MAGICK_15
+using ImageGlass.Common.Loggers;
+#endif
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -30,6 +33,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if IMAGEGLASS_MAGICK_15
+using OrientationType = ImageMagick.Orientation;
+#endif
 
 namespace ImageGlass.Common.Photoing;
 
@@ -54,6 +61,12 @@ public static partial class MagickCodec
 
         try
         {
+#if IMAGEGLASS_MAGICK_15
+            if (PhotoTrace.Enabled)
+            {
+                PhotoTrace.Mark("magick:native", detail: MagickNET.ImageMagickVersion);
+            }
+#endif
             if (!ImageMagick.OpenCL.IsEnabled)
             {
                 // this can throw exception
