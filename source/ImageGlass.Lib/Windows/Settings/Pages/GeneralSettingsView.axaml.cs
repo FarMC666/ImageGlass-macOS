@@ -77,7 +77,15 @@ public partial class GeneralSettingsView : SettingsPageView
             // AutoUpdate is stored as a date string; "0" means disabled.
             BindAutoUpdateToggle(PART_AutoUpdate, ConfigId.AutoUpdate,
                 LangId.Settings_AutoUpdate, LangId.Settings_AppUpdate);
-            BindLink(PART_SeeWhatIsSent, LangId.Settings_SeeWhatIsSent, ShowUsageStatsPreview);
+            if (UpdateProvider.UsesIntelGitHubReleases)
+            {
+                PART_SeeWhatIsSent.IsVisible = false;
+                PART_AutoUpdateDescription.LangKey = LangId.Settings_AutoUpdate_Intel_Description;
+            }
+            else
+            {
+                BindLink(PART_SeeWhatIsSent, LangId.Settings_SeeWhatIsSent, ShowUsageStatsPreview);
+            }
         }
         else
         {

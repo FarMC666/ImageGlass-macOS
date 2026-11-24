@@ -4,6 +4,7 @@
     <IgVersion>10.0.6.906</IgVersion>
     <IgReleaseType></IgReleaseType>
     <IgUpdateChannel>stable</IgUpdateChannel>
+    <IgIntelReleaseSequence>0</IgIntelReleaseSequence>
 
     <!-- App bundle version. Leave empty to derive from IgVersion -->
     <IgBundleShortVersion>10.0.6</IgBundleShortVersion>

@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using ImageGlass.Common;
 using ImageGlass.Common.Localization;
 using ImageGlass.Common.ServiceProviders.Licensing;
+using ImageGlass.Common.ServiceProviders;
 using ImageGlass.Common.ServiceProviders.Update;
 using ImageGlass.Common.Types;
 using ImageGlass.UI.Windowing;
@@ -53,7 +54,7 @@ public partial class UpdateWindow : ModalWindow
 
         ShowInTaskbar = true;
         Title = Core.Lang[LangId._CheckForUpdate];
-        Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+        Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, UpdateProvider.DisplayVersion];
 
         PART_BtnTitle.Click += (_, _) => OpenChangeLog();
         PART_BtnChangelog.Click += (_, _) => OpenChangeLog();
@@ -243,7 +244,7 @@ public partial class UpdateWindow : ModalWindow
         if (result.Status == UpdateCheckStatus.UpdateAvailable && release is not null)
         {
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_NewVersion];
-            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, UpdateProvider.DisplayVersion];
             Thumbnail = Resx.GetSvg(ResxSvgId.StarStruck);
             ShowReleaseCard(release);
 
@@ -257,14 +258,14 @@ public partial class UpdateWindow : ModalWindow
         else if (result.Status == UpdateCheckStatus.IntelMacInstallerUnavailable && release is not null)
         {
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable];
-            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, UpdateProvider.DisplayVersion];
             ShowReleaseCard(release);
             PART_BtnChangelog.IsVisible = !string.IsNullOrWhiteSpace(release.ChangelogUrl);
         }
         else if (result.Status == UpdateCheckStatus.Disabled)
         {
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_Disabled];
-            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, UpdateProvider.DisplayVersion];
         }
         else if (result.Status == UpdateCheckStatus.CheckFailed)
         {
@@ -275,7 +276,7 @@ public partial class UpdateWindow : ModalWindow
         {
             // NoUpdate: always show the latest release info when we have it
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_NoUpdate];
-            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, Core.BuildInfo.Version];
+            Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_CurrentVersion, UpdateProvider.DisplayVersion];
             Thumbnail = Resx.GetSvg(ResxSvgId.SmilingFaceWithSmilingEyes);
 
             if (release is not null)

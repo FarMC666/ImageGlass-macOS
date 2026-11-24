@@ -24,6 +24,7 @@
       <FullVersion ParameterType="System.String" Required="true" />
       <ReleaseType ParameterType="System.String" Required="false" />
       <UpdateChannel ParameterType="System.String" Required="true" />
+      <IntelReleaseSequence ParameterType="System.Int32" Required="true" />
     </ParameterGroup>
     <Task>
       <Code Type="Fragment" Language="cs">
@@ -39,6 +40,7 @@ var code = $$"""
         public string FullVersion { get; } = "{{FullVersion}}";
         public string ReleaseType { get; } = "{{ReleaseType}}";
         public string UpdateChannel { get; } = "{{UpdateChannel}}";
+        public int IntelReleaseSequence { get; } = {{IntelReleaseSequence}};
     }
     """;
 
@@ -68,7 +70,8 @@ if (!System.IO.File.Exists(OutputPath) || System.IO.File.ReadAllText(OutputPath)
         Version="$(IgVersion)"
         FullVersion="$(IgFullVersion)"
         ReleaseType="$(IgReleaseType)"
-        UpdateChannel="$(IgUpdateChannel)" />
+        UpdateChannel="$(IgUpdateChannel)"
+        IntelReleaseSequence="$(IgIntelReleaseSequence)" />
     <ItemGroup>
       <Compile Remove="$(_AppBuildInfoFile)" />
       <Compile Include="$(_AppBuildInfoFile)" />

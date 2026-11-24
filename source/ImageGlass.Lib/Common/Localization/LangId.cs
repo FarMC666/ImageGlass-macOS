@@ -493,6 +493,7 @@ public enum LangId
     // General > App update
     Settings_AppUpdate,
     Settings_AutoUpdate_Description,
+    Settings_AutoUpdate_Intel_Description,
     Settings_SeeWhatIsSent,
 
     // General > Others

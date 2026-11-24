@@ -42,11 +42,17 @@ ImageGlass is a fast, modern, open-source image viewer built for Windows, macOS,
 <br/>
 
 
-> [!NOTE]
-> Get the Intel Mac community build from this repository's Releases page and check the DMG's SHA-256 shown with the asset. For official builds, use the ImageGlass website. Verify the address before downloading from any source.
+## Install or update on an Intel Mac
 
-<br/>
+Requires an Intel Mac running macOS 15 or later. The build was tested on Intel macOS 15.8.3. The app includes its .NET runtime.
 
+1. Download `ImageGlass_<version>_mac-x64.dmg` from the [Intel port’s GitHub Releases](https://github.com/FarMC666/ImageGlass-macOS/releases). Run `shasum -a 256 "/path/to/the/downloaded.dmg"` and compare the result with the SHA-256 shown for the release asset.
+2. Quit ImageGlass if it is open. Open the DMG, drag **ImageGlass Intel** to **Applications**, and choose **Replace** if prompted. Eject the DMG and open the installed app from **Applications**.
+3. The preview uses an ad-hoc signature and is not notarized. If macOS blocks the first launch, verify the download and follow Apple’s instructions for [opening an app you trust](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac).
+
+**If you’re using the `10.0.6.906-mac-x64.1` preview, install `10.0.6.906-mac-x64.2` manually.** The earlier preview had update checks disabled. Starting with `.2`, **Help > Check for update** checks this repository, and **Settings > General > App update** controls checks at startup, roughly once a week. Published Intel previews are included. An increase in the release sequence, such as `.2` to `.3`, counts as an update even when the application version is the same. An update opens the Intel x64 DMG download in your browser. Use the steps above to install it.
+
+Report port bugs through [Intel port Issues](https://github.com/FarMC666/ImageGlass-macOS/issues). For security problems, use the [private reporting instructions](SECURITY.md).
 
 ## Features
 Primarily a photo viewer, ImageGlass offers a wide array of features geared toward image viewing, along with some focused editing capabilities. Here are some of the key features:
@@ -88,7 +94,7 @@ Primarily a photo viewer, ImageGlass offers a wide array of features geared towa
 
 
 ## Development
-The Intel port is maintained on `macos-x64`. Upstream development is on `develop`, and upstream stable releases are on `prod`.
+The Intel port is maintained on `macos-x64`. See [CONTRIBUTING.md](CONTRIBUTING.md#syncing-an-upstream-release) for upstream sync and Intel release checks.
 
 **Version 10**: Located in `source` folder
 - Visual Studio 2026 for Windows build
