@@ -1,5 +1,9 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 🔒 Report a security vulnerability privately
+    url: https://github.com/FarMC666/ImageGlass-macOS/security/advisories/new
+    about: Send a private vulnerability report for the Intel macOS community build.
+
   - name: ⭐ Request for Paid Support
     url: https://imageglass.org/support#premium-support
     about: Unlock premium assistance directly from the creator of ImageGlass.

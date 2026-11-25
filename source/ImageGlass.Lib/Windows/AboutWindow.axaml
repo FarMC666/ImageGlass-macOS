@@ -65,6 +65,14 @@
                 FontSize="{x:Static types:Const.FONT_SIZE_SMALL}"
                 TextAlignment="Center" />
 
+            <ui:PhButton
+                x:Name="PART_BtnCopyBuildInfo"
+                Margin="0,6,0,0"
+                HorizontalAlignment="Center"
+                FontSize="{x:Static types:Const.FONT_SIZE_SMALL}"
+                IsVisible="False"
+                Variant="Outline" />
+
             <Border
                 Height="1"
                 Margin="0,16,0,12"

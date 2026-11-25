@@ -1,40 +1,39 @@
-name: 🐞 Report a Bug
-description: Create a report to help us improve. Clearly attach screenshots or video to help reproduce the issue quickly. Include a sample file if the problem involves image formats.
+name: 🐞 Report an Intel macOS bug
+description: Report a problem with the ImageGlass Intel Mac community build.
 labels: ['🐞 bug']
 body:
 - type: markdown
   attributes:
     value: |
-      Before you fill in this template,
-      **please search** open/closed issues and discussions before submitting.
-      It might be already known and fixed before.
+      Search open and closed issues before reporting.
+      For security problems, use the [private vulnerability form](https://github.com/FarMC666/ImageGlass-macOS/security/advisories/new).
 
 - type: input
   id: os-version
   attributes:
-    label: Windows OS version
-    description: e.g. Windows 11 24H2
+    label: macOS version
+    description: Use the version from About This Mac or Help > About in ImageGlass.
+    placeholder: macOS 15.8.3
   validations:
     required: true
 
 - type: input
   id: ig-version
   attributes:
-    label: ImageGlass version
-    description: |
-      - ✅ Do provide full version number found in ImageGlass About dialog (press F1). E.g. v9.3.1.518
-      - ❌ Do not use "latest"
+    label: Intel release tag
+    description: Use Help > About > Copy Build Info, or find the tag on the GitHub release you downloaded.
+    placeholder: 10.0.6.906-mac-x64.3
   validations:
     required: true
 
 - type: dropdown
   id: ig-release
   attributes:
-    label: ImageGlass release
+    label: ImageGlass edition
     options:
       - Classic
-      - Store
-    description: Select "Store" if you installed ImageGlass from [MS Store](https://apps.microsoft.com/detail/9N33VZK3C7TH?launch=true&cid=ig_github_bug_report&mode=full).
+      - Pro
+      - Unknown
   validations:
     required: true
 

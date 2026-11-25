@@ -875,5 +875,8 @@ public enum LangId
     Menu_MnuCheckForUpdate_Disabled,
     Menu_MnuCheckForUpdate_IntelFeedUnavailable,
     Menu_MnuCheckForUpdate_OpenReleases,
+    About_CopyBuildInfo,
+    About_BuildInfoCopied,
+    About_CopyBuildInfoFailed,
 }
 

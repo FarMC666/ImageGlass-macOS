@@ -1,0 +1,27 @@
+name: Intel release checks
+
+on:
+  pull_request:
+    branches: [macos-x64]
+  push:
+    branches: [macos-x64]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  intel-release-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check packaging scripts and updater fixtures
+        run: bash source/__assets/mac/verify-intel-release.sh --checks-only

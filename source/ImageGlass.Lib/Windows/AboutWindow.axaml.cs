@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using ImageGlass.Common.Localization;
 using ImageGlass.Common.ServiceProviders;
@@ -113,6 +114,23 @@ public partial class AboutWindow : DialogWindow
         PART_BtnPrivacy.Click += (_, _) => OpenUrl("https://imageglass.org/privacy");
         PART_BtnDonate.Click += (_, _) => OpenUrl("https://imageglass.org/donate");
 
+        PART_BtnCopyBuildInfo.IsVisible = UpdateProvider.UsesIntelGitHubReleases;
+        PART_BtnCopyBuildInfo.Click += async (_, _) =>
+        {
+            if (Clipboard is not { } clipboard || PART_LblVersion.Text is not { } info) return;
+
+            try
+            {
+                await clipboard.SetTextAsync(info);
+                PART_BtnCopyBuildInfo.Text = Core.Lang[LangId.About_BuildInfoCopied];
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                PART_BtnCopyBuildInfo.Text = Core.Lang[LangId.About_CopyBuildInfoFailed];
+            }
+        };
+
         PART_BtnCheckForUpdate.Click += async (_, _) =>
         {
             _ = await Core.API.RunApiAsync(API.IG_CheckForUpdate, "true");
@@ -157,6 +175,7 @@ public partial class AboutWindow : DialogWindow
         PART_BtnPrivacy.Text = Core.Lang[LangId._Privacy];
         PART_BtnDonate.Text = "❤️ " + Core.Lang[LangId._Donate];
         PART_BtnCheckForUpdate.Text = Core.Lang[LangId._CheckForUpdate];
+        PART_BtnCopyBuildInfo.Text = Core.Lang[LangId.About_CopyBuildInfo];
 
         // the edition name is not translatable, but the tooltip says what clicking it does
         ToolTip.SetTip(PART_BtnEdition, Core.Lang[Core.IsProEnabled
@@ -177,8 +196,17 @@ public partial class AboutWindow : DialogWindow
         var magickVersion = MagickNET.Version;
         var dotnetVersion = RuntimeInformation.FrameworkDescription;
 
+        var version = Core.BuildInfo.FullVersion;
+        if (UpdateProvider.UsesIntelGitHubReleases)
+        {
+            var architecture = RuntimeInformation.ProcessArchitecture == Architecture.X64
+                ? "x86_64"
+                : RuntimeInformation.ProcessArchitecture.ToString();
+            version = $"{UpdateProvider.DisplayVersion}\nmacOS {Environment.OSVersion.Version} · {architecture}";
+        }
+
         PART_LblVersion.Text = $"""
-            {Core.Lang[LangId._AboutVersion]} {Core.BuildInfo.FullVersion}
+            {Core.Lang[LangId._AboutVersion]} {version}
             {magickVersion}
             {dotnetVersion}
             """;
