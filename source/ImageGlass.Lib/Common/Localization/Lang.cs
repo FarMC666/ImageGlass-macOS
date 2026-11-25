@@ -868,6 +868,8 @@ public class Lang
         new(LangId.Menu_MnuCheckForUpdate_NewVersion, "A new update is available!"), //v5.0
         new(LangId.Menu_MnuCheckForUpdate_IntelMacInstallerUnavailable, "The latest release has no Intel Mac installer."),
         new(LangId.Menu_MnuCheckForUpdate_Disabled, "Updates are temporarily disabled for this build."),
+        new(LangId.Menu_MnuCheckForUpdate_IntelFeedUnavailable, "The Intel update service is unavailable. You can check the release page in your browser."),
+        new(LangId.Menu_MnuCheckForUpdate_OpenReleases, "Open Intel Releases"),
         new(LangId.Menu_MnuCheckForUpdate_NoUpdate, "You are using the latest version!"),
         new(LangId.Menu_MnuCheckForUpdate_Checking, "Checking for update…"),
         new(LangId.Menu_MnuCheckForUpdate_Failed, "Could not check for update!"),
