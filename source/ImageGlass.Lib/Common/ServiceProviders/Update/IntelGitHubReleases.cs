@@ -17,13 +17,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace ImageGlass.Common.ServiceProviders.Update;
 
@@ -32,7 +37,8 @@ internal static class IntelGitHubReleases
     public const string Channel = "github-intel";
 
     private const string Repository = "FarMC666/ImageGlass-macOS";
-    private const string ReleasesUrl = "https://github.com/" + Repository + "/releases";
+    public const string ReleasesUrl = "https://github.com/" + Repository + "/releases";
+    private const string ReleaseTagUrl = ReleasesUrl + "/tag/";
     private const string ApiUrl = "https://api.github.com/repos/" + Repository + "/releases";
     private const string TagSeparator = "-mac-x64.";
     public const string IssuesUrl = "https://github.com/" + Repository + "/issues";
@@ -46,28 +52,49 @@ internal static class IntelGitHubReleases
         var current = (Version.Parse(appVersion), sequence);
         if (sequence <= 0) return UpdateCheckResult.Failed("Invalid Intel release sequence.");
 
-        (Version Version, int Sequence) latest = current;
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(UpdateConstants.MetadataTimeout);
+        UpdateReleaseInfo? release;
+        try
+        {
+            release = await CheckRestApiAsync(client, current, timeout.Token).ConfigureAwait(false);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests)
+        {
+            release = await CheckAtomFeedAsync(client, current, timeout.Token).ConfigureAwait(false);
+        }
+
+        if (release is null || release.Version == FormatTag(appVersion, sequence))
+        {
+            return UpdateCheckResult.NoUpdate(release);
+        }
+        if (release.Version == skippedVersion) return UpdateCheckResult.NoUpdate();
+
+        return UpdateCheckResult.ForIntelMac(release, release.UpdateUrl);
+    }
+
+    private static async Task<UpdateReleaseInfo?> CheckRestApiAsync(HttpClient client,
+        (Version Version, int Sequence) current, CancellationToken ct)
+    {
+        var latest = current;
         UpdateReleaseInfo? release = null;
         var page = 1;
         bool hasNextPage;
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        timeout.CancelAfter(UpdateConstants.MetadataTimeout);
         do
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get,
+            using var request = CreateRequest(HttpMethod.Get,
                 ApiUrl + "?per_page=30&page=" + page.ToString(CultureInfo.InvariantCulture));
-            request.Headers.UserAgent.ParseAdd("ImageGlass-Intel-Mac");
             request.Headers.Accept.ParseAdd("application/vnd.github+json");
             request.Headers.Add("X-GitHub-Api-Version", "2026-03-10");
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token)
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
                 .ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            await response.Content.LoadIntoBufferAsync(UpdateConstants.MaxMetadataSize, timeout.Token).ConfigureAwait(false);
-            using var content = await response.Content.ReadAsStreamAsync(timeout.Token).ConfigureAwait(false);
+            await response.Content.LoadIntoBufferAsync(UpdateConstants.MaxMetadataSize, ct).ConfigureAwait(false);
+            using var content = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
             var releases = await JsonSerializer.DeserializeAsync(content, IntelGitHubJsonContext.Default.GitHubReleaseArray,
-                timeout.Token).ConfigureAwait(false);
-            if (releases is null) return UpdateCheckResult.Failed("Invalid GitHub Releases response.");
+                ct).ConfigureAwait(false);
+            if (releases is null) throw new JsonException("Invalid GitHub Releases response.");
 
             foreach (var item in releases)
             {
@@ -78,8 +105,8 @@ internal static class IntelGitHubReleases
                     continue;
                 }
 
-                var fileName = $"ImageGlass_{version.Version}_mac-x64.dmg";
-                var downloadUrl = $"{ReleasesUrl}/download/{tag}/{fileName}";
+                var fileName = GetInstallerFileName(version.Version);
+                var downloadUrl = GetDownloadUrl(tag, fileName);
                 if (!assets.Any(asset => asset is { State: "uploaded", Size: > 0 }
                     && asset.Name == fileName && asset.DownloadUrl == downloadUrl))
                 {
@@ -92,7 +119,7 @@ internal static class IntelGitHubReleases
                     Version = tag,
                     Title = item.Name ?? string.Empty,
                     PublishedDate = publishedAt.ToLocalTime().ToString("d"),
-                    ChangelogUrl = $"{ReleasesUrl}/tag/{tag}",
+                    ChangelogUrl = ReleaseTagUrl + tag,
                     UpdateUrl = downloadUrl,
                 };
             }
@@ -104,11 +131,93 @@ internal static class IntelGitHubReleases
         }
         while (hasNextPage);
 
-        if (release is null || latest == current) return UpdateCheckResult.NoUpdate(release);
-        if (release.Version == skippedVersion) return UpdateCheckResult.NoUpdate();
-
-        return UpdateCheckResult.ForIntelMac(release, release.UpdateUrl);
+        return release;
     }
+
+    private static async Task<UpdateReleaseInfo?> CheckAtomFeedAsync(HttpClient client,
+        (Version Version, int Sequence) current, CancellationToken ct)
+    {
+        XNamespace atom = "http://www.w3.org/2005/Atom";
+        using var request = CreateRequest(HttpMethod.Get, ReleasesUrl + ".atom");
+        request.Headers.Accept.ParseAdd("application/atom+xml");
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
+            .ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        await response.Content.LoadIntoBufferAsync(UpdateConstants.MaxMetadataSize, ct).ConfigureAwait(false);
+        using var content = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        using var reader = XmlReader.Create(content, new XmlReaderSettings
+        {
+            Async = true,
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = UpdateConstants.MaxMetadataSize,
+        });
+        var doc = await XDocument.LoadAsync(reader, LoadOptions.None, ct).ConfigureAwait(false);
+        if (doc.Root is not { } root || root.Name != atom + "feed")
+        {
+            throw new InvalidDataException("Invalid GitHub Releases feed.");
+        }
+
+        var candidates = root.Elements(atom + "entry").SelectMany(entry => entry.Elements(atom + "link")
+            .Where(link => (string?)link.Attribute("rel") == "alternate")
+            .Select(link => (Href: (string?)link.Attribute("href"), Title: (string?)entry.Element(atom + "title"))));
+
+        var releases = new SortedDictionary<(Version Version, int Sequence), UpdateReleaseInfo>();
+        foreach (var entry in candidates)
+        {
+            if (entry.Href is not { } href || !href.StartsWith(ReleaseTagUrl, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var tag = href[ReleaseTagUrl.Length..];
+            if (!TryParseTag(tag, out var version) || version.CompareTo(current) < 0)
+            {
+                continue;
+            }
+
+            releases.TryAdd(version, new UpdateReleaseInfo
+            {
+                Version = tag,
+                Title = entry.Title ?? string.Empty,
+                ChangelogUrl = ReleaseTagUrl + tag,
+                UpdateUrl = GetDownloadUrl(tag, GetInstallerFileName(version.Version)),
+            });
+        }
+
+        foreach (var (version, release) in releases.Reverse())
+        {
+            using var assetRequest = CreateRequest(HttpMethod.Head, release.UpdateUrl);
+            using var assetResponse = await client.SendAsync(assetRequest, HttpCompletionOption.ResponseHeadersRead, ct)
+                .ConfigureAwait(false);
+            if (assetResponse.StatusCode == HttpStatusCode.NotFound) continue;
+            assetResponse.EnsureSuccessStatusCode();
+
+            var disposition = assetResponse.Content.Headers.ContentDisposition;
+            var fileName = disposition?.FileNameStar ?? disposition?.FileName?.Trim('"');
+            if (assetResponse.StatusCode != HttpStatusCode.OK || assetResponse.Content.Headers.ContentLength is not > 0
+                || disposition?.DispositionType != "attachment" || fileName != GetInstallerFileName(version.Version))
+            {
+                throw new InvalidDataException("Invalid response for the GitHub Intel DMG.");
+            }
+
+            return release;
+        }
+
+        return null;
+    }
+
+    private static HttpRequestMessage CreateRequest(HttpMethod method, string url)
+    {
+        var request = new HttpRequestMessage(method, url);
+        request.Headers.UserAgent.ParseAdd("ImageGlass-Intel-Mac");
+        return request;
+    }
+
+    private static string GetInstallerFileName(Version version) => $"ImageGlass_{version}_mac-x64.dmg";
+
+    private static string GetDownloadUrl(string tag, string fileName) => $"{ReleasesUrl}/download/{tag}/{fileName}";
 
     private static bool TryParseTag(string tag, out (Version Version, int Sequence) value)
     {

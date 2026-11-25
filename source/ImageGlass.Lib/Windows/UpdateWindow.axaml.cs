@@ -91,6 +91,12 @@ public partial class UpdateWindow : ModalWindow
 
         if (_result?.Status == UpdateCheckStatus.IntelMacInstallerUnavailable) return;
 
+        if (_result?.Status == UpdateCheckStatus.CheckFailed && UpdateProvider.UsesIntelGitHubReleases)
+        {
+            OpenUrl(IntelGitHubReleases.ReleasesUrl);
+            return;
+        }
+
         // Prefer the architecture-specific download when the check selected one.
         var release = _result?.Release;
         var url = _result?.DownloadUrl ?? (!string.IsNullOrWhiteSpace(release?.UpdateUrl)
@@ -271,6 +277,12 @@ public partial class UpdateWindow : ModalWindow
         {
             Heading = Core.Lang[LangId.Menu_MnuCheckForUpdate_Failed];
             Description = result.ErrorMessage;
+            if (UpdateProvider.UsesIntelGitHubReleases)
+            {
+                Description = Core.Lang[LangId.Menu_MnuCheckForUpdate_IntelFeedUnavailable];
+                Button1Text = Core.Lang[LangId.Menu_MnuCheckForUpdate_OpenReleases];
+                IsButton1Visible = true;
+            }
         }
         else
         {

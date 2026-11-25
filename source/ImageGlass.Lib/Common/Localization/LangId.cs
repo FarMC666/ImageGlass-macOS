@@ -873,5 +873,7 @@ public enum LangId
     Menu_MacHideOthers,
     Menu_MacShowAll,
     Menu_MnuCheckForUpdate_Disabled,
+    Menu_MnuCheckForUpdate_IntelFeedUnavailable,
+    Menu_MnuCheckForUpdate_OpenReleases,
 }
 
