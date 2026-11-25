@@ -83,9 +83,17 @@ Developer ID packaging requires an explicit `--sign developer-id`, your own
 The `github-intel` channel uses the anonymous [GitHub Releases API](https://docs.github.com/en/rest/releases/releases#list-releases) for [FarMC666/ImageGlass-macOS](https://github.com/FarMC666/ImageGlass-macOS/releases). On HTTP 403 or 429 it reads the same repository’s public Atom feed and checks for the matching DMG before offering an update. It considers published releases and prereleases with a matching Intel tag and uploaded DMG. The comparison uses the four-part application version first and the Intel release sequence second.
 
 - Set `IgIntelReleaseSequence` in [ImageGlass.Mac.csproj](source/ImageGlass.Mac/ImageGlass.Mac.csproj) before building. Use the same number in `<IgVersion>-mac-x64.<sequence>`. Start at `1` for a new application version, and increment the sequence for each new DMG with the same application version.
-- From `source/`, run `dotnet run --project __assets/mac/update-check/UpdateCheck.csproj -c Release`. The fixtures cover sequence ordering, skipped releases, pagination, asset filtering, and the rate-limit fallback. On an Intel test Mac, check **Help > Check for update** and launch with automatic checks enabled and a last-check timestamp older than eight days. Check that a launch shortly afterward keeps the timestamp and that opting out still allows manual checks.
-- Verify the DMG with `hdiutil verify` and record its `shasum -a 256`. Mount it and run `codesign --verify --deep --strict` on the App. Check the main executable and bundled Magick dylib for the x86_64 slice and macOS deployment target.
-- Draft the prerelease against the exact tested commit. Check the tag, release notes and the `ImageGlass_<IgVersion>_mac-x64.dmg` asset, including its SHA-256. State the ad-hoc signature, notarization and tested macOS versions. After publication, confirm that the anonymous release API exposes the asset and that the downloaded DMG still has the same hash.
+- From the repository root, run `bash source/__assets/mac/verify-intel-release.sh --checks-only`. It validates packaging script syntax and runs the update fixtures without contacting GitHub Releases. The Intel release checks workflow runs the same command on pull requests and pushes to `macos-x64`.
+- Run the full check on macOS after packaging. It repeats the local checks, verifies the disk image and its nested code signature, compares the expected tag with the signed tag resource, and checks the x86_64 executable and bundled Magick dylib. The last line reports the SHA-256. Optionally supply a previously recorded digest as a third argument to compare another copy. Builds created before the signed tag resource was added require the checks documented in their release source.
+- On an Intel Mac, confirm **Help > About** shows the same tag and **Copy Build Info** includes the macOS version and architecture. Check **Help > Check for update** and launch with automatic checks enabled and a last-check timestamp older than eight days. Confirm a recent launch keeps the timestamp and opting out still allows manual checks.
+- Prepare the release draft against the exact tested commit. Check the tag, release notes and the `ImageGlass_<IgVersion>_mac-x64.dmg` asset, including its SHA-256. Record the signing, notarization and tested macOS versions. After publication, confirm that the anonymous release API exposes the asset and the downloaded DMG still has the same hash.
+
+The following command uses an example tag. Replace it with the tag embedded in the DMG you built.
+
+```sh
+bash source/__assets/mac/verify-intel-release.sh 10.0.6.906-mac-x64.4 \
+  source/__artifacts/bundle/ImageGlass_10.0.6.906_mac-x64.dmg
+```
 
 ### Syncing an upstream release
 
@@ -151,7 +159,7 @@ Published packs are listed at [imageglass.org/languages](https://imageglass.org/
 
 Use [Intel port Issues](https://github.com/FarMC666/ImageGlass-macOS/issues) for this build and [upstream Issues](https://github.com/d2phap/ImageGlass/issues/new/choose) for official builds. Include:
 
-- The full Intel release tag, Classic or Pro edition, and macOS version
+- The full Intel release tag, Classic or Pro edition, and macOS version. **Help > About > Copy Build Info** copies the tag, system version and process architecture on supported builds.
 - Exact steps to reproduce
 - The image file that triggers it, when the problem is format-specific
 - Screenshots, a recording, or the trace log described above
