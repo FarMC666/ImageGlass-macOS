@@ -23,10 +23,7 @@ Any type of contribution is welcome, not only code:
 | [source/](source/) | ImageGlass 10 (.NET 10, Avalonia, SkiaSharp). This is where active development happens. |
 | [v9/](v9/) | Legacy ImageGlass 9 (WinForms). Archived; only critical fixes are considered. |
 
-Branches:
-
-- `develop`: latest commits. **All pull requests must target `develop`.**
-- `prod`: the final stable release.
+Use `macos-x64` as the base for Intel port pull requests. Upstream ImageGlass uses `develop` for contributions and `prod` for stable releases.
 
 
 ## Building and running
@@ -71,22 +68,50 @@ Both are for local testing and the app bundles its runtime. To test the CoreCLR 
 publish to a separate directory with the same RID and self-contained setting and set all
 four `Publish*` options above to `false`. Pass that directory to the app packer.
 
-The Intel build uses the Q16-HDRI Magick.NET package without OpenMP. Use trusted image
-samples for this stable-version port. The bundled ImageMagick is affected by
-[an upstream TIFF security advisory](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-gr4q-6v79-qj3g).
+The Intel build uses Magick.NET 15.1.0 and a locally packaged Q16-HDRI Magick.Native
+without OpenMP. It embeds ImageMagick 7.1.2-36, which includes the fix for
+[the upstream TIFF advisory](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-gr4q-6v79-qj3g).
+See the [pinned Intel native build and verification instructions](source/__assets/mac/codec/README.md).
 The Intel app has its own bundle identifier and uses the regular ImageGlass per-user
 configuration and single-instance lock.
-
-The Intel target currently builds with `IgUpdateChannel=disabled`. Both scheduled and
-manual checks stay offline. When an Intel update source is ready, connect its metadata
-endpoint and verify that it publishes a `mac-x64-dmg` artifact before enabling the channel.
 
 Developer ID packaging requires an explicit `--sign developer-id`, your own
 `SIGN_IDENTITY`, and a `NOTARY_PROFILE` for the disk-image step.
 
+### Intel update channel and release verification
+
+The `github-intel` channel uses the anonymous [GitHub Releases API](https://docs.github.com/en/rest/releases/releases#list-releases) for [FarMC666/ImageGlass-macOS](https://github.com/FarMC666/ImageGlass-macOS/releases). It considers published releases and prereleases with a matching Intel tag and uploaded DMG. The comparison uses the four-part application version first and the Intel release sequence second.
+
+- Set `IgIntelReleaseSequence` in [ImageGlass.Mac.csproj](source/ImageGlass.Mac/ImageGlass.Mac.csproj) before building. Use the same number in `<IgVersion>-mac-x64.<sequence>`. Start at `1` for a new application version, and increment the sequence for each new DMG with the same application version.
+- From `source/`, run `dotnet run --project __assets/mac/update-check/UpdateCheck.csproj -c Release`. The fixtures cover sequence ordering, skipped releases, pagination and asset filtering. On an Intel test Mac, check **Help > Check for update** and launch with automatic checks enabled and a last-check timestamp older than eight days. Check that a launch shortly afterward keeps the timestamp and that opting out still allows manual checks.
+- Verify the DMG with `hdiutil verify` and record its `shasum -a 256`. Mount it and run `codesign --verify --deep --strict` on the App. Check the main executable and bundled Magick dylib for the x86_64 slice and macOS deployment target.
+- Draft the prerelease against the exact tested commit. Check the tag, release notes and the `ImageGlass_<IgVersion>_mac-x64.dmg` asset, including its SHA-256. State the ad-hoc signature, notarization and tested macOS versions. After publication, confirm that the anonymous release API exposes the asset and that the downloaded DMG still has the same hash.
+
+### Syncing an upstream release
+
+Use `origin` for this port. Keep upstream limited to fetching `prod`. From the repository root, add the remote if absent and configure the fetch and push URLs.
+
+```sh
+git remote add upstream https://github.com/d2phap/ImageGlass.git # first-time setup only
+git remote set-url upstream https://github.com/d2phap/ImageGlass.git
+git remote set-url --push upstream file:///dev/null
+git config remote.upstream.fetch '+refs/heads/prod:refs/remotes/upstream/prod'
+git fetch upstream
+```
+
+Select a stable tag from the [official upstream releases](https://github.com/d2phap/ImageGlass/releases) and fetch it explicitly. The commands below use `10.0.6.906`.
+
+```sh
+tag=10.0.6.906
+git fetch --no-tags upstream "refs/tags/$tag:refs/tags/$tag"
+git log --left-right --oneline "macos-x64...refs/tags/$tag"
+```
+
+If the selected tag is already an ancestor of `macos-x64`, the port includes it. Otherwise, merge the verified tag in a separate branch or worktree based on `macos-x64`. Before advancing the maintenance branch, verify the Intel native dependency and image codecs, Classic/Pro license behavior, both update checks, and the signed DMG.
+
 ## Submitting code
 
-Any code change should be submitted as a pull request **based on the `develop` branch**.
+Submit port changes as pull requests against `macos-x64`. For changes to official ImageGlass, follow the [upstream contribution guide](https://github.com/d2phap/ImageGlass/blob/develop/CONTRIBUTING.md).
 
 Before you open it:
 
@@ -124,9 +149,9 @@ Published packs are listed at [imageglass.org/languages](https://imageglass.org/
 
 ## Reporting bugs
 
-Use the [issue templates](https://github.com/d2phap/ImageGlass/issues/new/choose) and include:
+Use [Intel port Issues](https://github.com/FarMC666/ImageGlass-macOS/issues) for this build and [upstream Issues](https://github.com/d2phap/ImageGlass/issues/new/choose) for official builds. Include:
 
-- ImageGlass version and edition (Classic or Pro, installer or Microsoft Store), and your OS version
+- The full Intel release tag, Classic or Pro edition, and macOS version
 - Exact steps to reproduce
 - The image file that triggers it, when the problem is format-specific
 - Screenshots, a recording, or the trace log described above

@@ -19,7 +19,9 @@
     <PackageVersion Include="D2Phap.FileWatcherEx" Version="3.0.0" />
     <PackageVersion Include="ImageGlass.SDK" Version="1.2.0" />
     <PackageVersion Include="Magick.NET-Q16-HDRI-arm64" Version="14.17.1" />
-    <PackageVersion Include="Magick.NET-Q16-HDRI-x64" Version="14.17.1" />
+    <PackageVersion Include="Magick.NET-Q16-HDRI-x64" Version="[15.1.0]" />
+    <PackageVersion Include="Magick.NET.Core" Version="[15.1.0]" />
+    <PackageVersion Include="FarMC666.ImageGlass.Magick.Native.osx-x64" Version="[15.1.0-intel.1]" />
     <PackageVersion Include="Magick.NET-Q16-HDRI-OpenMP-arm64" Version="14.17.1" />
     <PackageVersion Include="Magick.NET-Q16-HDRI-OpenMP-x64" Version="14.17.1" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.333" />

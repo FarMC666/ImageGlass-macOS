@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <GenerateIgAppBuildInfo>false</GenerateIgAppBuildInfo>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <MagickVersion Condition="'$(MagickVersion)' == ''">14.17.2</MagickVersion>
+    <DefineConstants Condition="'$(MagickVersion)' == '15.1.0'">$(DefineConstants);MAGICK_15</DefineConstants>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="[$(MagickVersion)]" />
+    <PackageReference Include="FarMC666.ImageGlass.Magick.Native.osx-x64" Version="[15.1.0-intel.1]"
+      Condition="'$(MagickVersion)' == '15.1.0'" />
+  </ItemGroup>
+</Project>

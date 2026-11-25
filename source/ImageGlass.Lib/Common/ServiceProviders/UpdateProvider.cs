@@ -34,6 +34,12 @@ public sealed class UpdateProvider
     private InterlockedBool _isChecking;
 
 
+    internal static bool UsesIntelGitHubReleases => Core.BuildInfo.UpdateChannel == IntelGitHubReleases.Channel;
+
+    internal static string DisplayVersion => UsesIntelGitHubReleases
+        ? IntelGitHubReleases.FormatTag(Core.BuildInfo.Version, Core.BuildInfo.IntelReleaseSequence)
+        : Core.BuildInfo.Version;
+
     internal static bool IsEnabled => !string.Equals(Core.BuildInfo.UpdateChannel, "disabled", StringComparison.OrdinalIgnoreCase);
 
 
@@ -61,25 +67,33 @@ public sealed class UpdateProvider
 
 
     /// <summary>
-    /// Checks for an available update by fetching the update manifest.
+    /// Checks for an available update on the build's configured channel.
     /// </summary>
     /// <param name="isScheduled">
-    /// <c>true</c> for the periodic background check. Only a scheduled check carries the usage
-    /// tokens and moves the bookmark; a manual check must leave both alone, or the user-triggered
-    /// request would report despite an opt-out and would shorten the next reported gap.
+    /// <c>true</c> for the periodic background check, which updates the last-check time.
+    /// Only scheduled upstream checks send the upstream usage tokens.
     /// </param>
     public async Task<UpdateCheckResult> CheckForUpdateAsync(CancellationToken ct, bool isScheduled = false)
     {
         if (!IsEnabled) return UpdateCheckResult.Disabled();
+
+        var useIntelReleases = UsesIntelGitHubReleases;
+        if (useIntelReleases && isScheduled && Core.Config.AutoUpdate == "0")
+        {
+            return UpdateCheckResult.Disabled();
+        }
 
         if (_isChecking) return UpdateCheckResult.Failed("Check already in progress.");
 
         _isChecking.SetTrue();
         try
         {
-            var result = await CheckForUpdateCoreAsync(isScheduled, ct).ConfigureAwait(false);
+            var result = useIntelReleases
+                ? await IntelGitHubReleases.CheckAsync(_httpClient, Core.BuildInfo.Version,
+                    Core.BuildInfo.IntelReleaseSequence, Core.Config.UpdateSkippedVersion, ct).ConfigureAwait(false)
+                : await CheckForUpdateCoreAsync(isScheduled, ct).ConfigureAwait(false);
 
-            if (isScheduled)
+            if (isScheduled && (!useIntelReleases || Core.Config.AutoUpdate != "0"))
             {
                 // record the check time
                 Core.Config.AutoUpdate = DateTime.UtcNow.ToString("o");

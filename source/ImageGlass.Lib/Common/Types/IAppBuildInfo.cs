@@ -36,8 +36,11 @@ public interface IAppBuildInfo
     string ReleaseType { get; }
 
     /// <summary>
-    /// Gets the update channel, either <c>stable</c> or <c>beta</c>.
+    /// Gets the update channel declared by the application build.
     /// </summary>
     string UpdateChannel { get; }
+
+    /// <summary>Gets the Intel DMG release sequence, or 0 for other builds.</summary>
+    int IntelReleaseSequence => 0;
 }
 

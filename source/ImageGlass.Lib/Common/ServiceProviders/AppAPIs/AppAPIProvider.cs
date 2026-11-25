@@ -3342,7 +3342,9 @@ public partial class AppAPIProvider
     public static void IG_ReportIssue()
     {
         _ = BHelper.OpenUrlAsync(App.MainWindow,
-            "https://github.com/d2phap/ImageGlass/issues?q=is%3Aissue+",
+            UpdateProvider.UsesIntelGitHubReleases
+                ? Update.IntelGitHubReleases.IssuesUrl
+                : "https://github.com/d2phap/ImageGlass/issues?q=is%3Aissue+",
             "from_report_issue");
     }
 

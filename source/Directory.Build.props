@@ -4,9 +4,14 @@
     <IgVersion>10.0.6.906</IgVersion>
     <IgReleaseType></IgReleaseType>
     <IgUpdateChannel>stable</IgUpdateChannel>
+    <IgIntelReleaseSequence>0</IgIntelReleaseSequence>
 
     <!-- App bundle version. Leave empty to derive from IgVersion -->
     <IgBundleShortVersion>10.0.6</IgBundleShortVersion>
     <IgBundleBuild>906</IgBundleBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(MSBuildThisFileDirectory)__assets/mac/codec/feed</RestoreAdditionalProjectSources>
   </PropertyGroup>
 </Project>
